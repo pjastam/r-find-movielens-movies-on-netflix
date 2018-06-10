@@ -13,26 +13,24 @@ source("functions/nuopnetflix.R")
 url  <- "https://movielens.org"
 path <- "/api/movies/explore"
 #Find your cookie in your standard browser, let's say this is Chrome:
-#Settings -> (Under privacy section choose:) Show advanced settings -> Content settings -> Cookies -> All cookies and site data -> movielens.org -> fill out the parameters in headers assigment below
-headers <- c("Cookie" = "_ga=; __uvts=7bHcgVX0GlVSlChS; ml4_session=a6bb369259b6b160c593e675888019818131d3a8_a9cfccbb-2dea-4b59-9704-f87b9fd2e524")
+#Settings -> Show advanced settings -> (Under privacy section choose:) Content settings -> Cookies -> All cookies and site data -> movielens.org -> fill out the parameters in headers assigment below
+headers <- c("Cookie" = "_ga=GA1.2.1715665127.1528646540; _gid=GA1.2.2048730544.1528646540; __uvts=7bc1GJF2Etmsq429; ml4_session=2af503ad797ccb80b2d11d1a3fd0de7f0a487df2_d5e694e2-de2f-4208-bfe3-247beffbfa1a
+")
 
-#Scrape each Movielens page with movie titles
+#Scrape the first Movielens page with movie titles
 r <- movielens(url, path, headers)
+movies_movielens <- as.data.frame(r[c("title","movielens","prediction")], stringsAsFactors = FALSE)
 
-#Rbind the Movielens pages
-movies_movielens <- r$title
+#Rbind the other Movielens pages with movie titles
 for (i in 1:maxpag(r$pagerobj)) {
   if (i > 1) {
-    movies_movielens <- rbind(movies_movielens, movielens(url, path, headers, page = i))
+    r <- movielens(url, path, headers, page = i)
+    movies_movielens <- rbind(movies_movielens, as.data.frame(r[c("title","movielens","prediction")], stringsAsFactors = FALSE))
   }
 }
 
-#Sanitize the Movielens output
-movies_movielens <- data.frame(unlist(movies_movielens),stringsAsFactors=FALSE)
-colnames(movies_movielens) <- "title"
-
-#ISSUE: the movies in this list are not unique, we solve this by the unique command for this moment
-movies_movielens <- unique(movies_movielens)
+#Sort the Movielens output by prediction
+movies_movielens <- movies_movielens[order(movies_movielens$prediction, decreasing = TRUE),]
 
 #################################################################################
 # GET NETFLIX TITLES
