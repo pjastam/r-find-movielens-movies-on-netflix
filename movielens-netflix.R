@@ -4,7 +4,7 @@
 
 source("functions/movielens.R")
 source("functions/maxpag.R")
-source("functions/nuopnetflix.R")
+source("functions/netflix-nederland.R")
 
 #################################################################################
 # GET MOVIELENS TITLES
@@ -21,8 +21,10 @@ headers <- c("Cookie" = "_ga=GA1.2.1715665127.1528646540; _gid=GA1.2.2048730544.
 r <- movielens(url, path, headers)
 movies_movielens <- as.data.frame(r[c("title","movielens","prediction")], stringsAsFactors = FALSE)
 
+#npages <- maxpag(r$pagerobj
+npages <- 1
 #Rbind the other Movielens pages with movie titles
-for (i in 1:maxpag(r$pagerobj)) {
+for (i in 1:npages) {
   if (i > 1) {
     r <- movielens(url, path, headers, page = i)
     movies_movielens <- rbind(movies_movielens, as.data.frame(r[c("title","movielens","prediction")], stringsAsFactors = FALSE))
@@ -36,10 +38,9 @@ movies_movielens <- movies_movielens[order(movies_movielens$prediction, decreasi
 # GET NETFLIX TITLES
 #################################################################################
 
-#Get the currently available Netflix titles
-#They are located in the local html file in the data subdirectory
-url <- "data/nuopnetflix.htm"
-movies_netflix <- nuopnetflix(url)
+#Get the currently available Netflix top 100 titles
+url <- "https://www.netflix-nederland.nl/aanbod-netflix-nederland/"
+movies_netflix <- netflix(url)
 
 #################################################################################
 # SELECT MOVIELENS TITLES THAT ARE ALSO IN THE LIST OF NETFLIX TITLES
