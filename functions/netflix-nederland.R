@@ -12,7 +12,7 @@ require(dplyr)
 netflix <- function(url) {
 
   r <- read_html(url) %>%
-    html_node("table.tablepress.tablepress-id-60") %>%
+    html_node("table.tablepress.tablepress-id-162") %>%
     html_nodes("a") %>%
     html_text() %>%
     as.data.frame(stringsAsFactors = FALSE) %>%
